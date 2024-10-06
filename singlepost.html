@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" crossorigin="anonymous" />
+    <title>Single Post</title>
+</head>
+<body>
+    <h1 class="text-center mt-4">Single Post</h1>
+
+    <div class="container mt-4">
+        <div id="postCard" class="card">
+            <div class="card-body">
+                <h5 class="card-title" id="postTitle"></h5>
+                <p class="card-text" id="postContent"></p>
+                <h5 class="card-title" id="postAuthor"></h5>
+                <p class="card-text" id="postCreatedAt"></p>
+                <p class="card-text" id="postUpdatedAt"></p>
+            </div>
+        </div>
+        <div class="mt-4" id="editDeleteOptions"></div>
+    </div>
+
+    <script>
+        async function fetchPost() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get("search");
+            const token = localStorage.getItem("token");
+            const apiUrl = `http://127.0.0.1:8000/api/posts/${postId}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
+
+                const post = await response.json();
+                displayPost(post.data);
+            } catch (error) {
+                console.error("Error fetching post:", error.message);
+            }
+        }
+
+        function displayPost(post) {
+            document.getElementById("postTitle").innerText = post.title;
+            document.getElementById("postContent").innerText = post.content;
+            document.getElementById("postAuthor").innerText = `Author: ${post.author}`;
+            document.getElementById("postCreatedAt").innerText = `Uploaded date: ${post.created_at}`;
+            document.getElementById("postUpdatedAt").innerText = `Last updated: ${post.updated_at}`;
+
+            const editDeleteOptions = document.getElementById("editDeleteOptions");
+            editDeleteOptions.innerHTML = `
+                <a href="/update.html?search=${post.id}" class="btn btn-primary">Edit</a>
+                <button class="btn btn-danger" onclick="deletePost(${post.id})">Delete</button>
+            `;
+        }
+
+        async function deletePost(postId) {
+            const token = localStorage.getItem("token");
+            const url = `http://127.0.0.1:8000/api/posts/${postId}`;
+
+            if (confirm("Are you sure you want to delete this post?")) {
+                try {
+                    const response = await fetch(url, {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Error: ${response.statusText}`);
+                    }
+
+                    alert("Post deleted successfully.");
+                    window.location.href = "/"; // Redirect to homepage or another page
+                } catch (error) {
+                    console.error(error);
+                    alert("Failed to delete the post. Please try again.");
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchPost);
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

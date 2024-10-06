@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+
+    <title>Register</title>
+</head>
+<body>
+    <div class="container">
+        <div class="col-md-4 offset-md-4 mt-1">
+            <div class="card form-holder">
+                <div class="card-body">
+                    <h4>Register</h4>
+                    <form id="myForm" method="post">
+                        <div class="form-group">
+                            <label for="exampleInputName1">Name</label>
+                            <input name="name" type="text" class="form-control" id="exampleInputName1" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Email address</label>
+                            <input type="email" class="form-control" name="email" aria-describedby="emailHelp" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Password</label>
+                            <input name="password" type="password" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword2">Confirm Password</label>
+                            <input name="password_confirmation" type="password" class="form-control" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+        const thisForm = document.getElementById("myForm");
+        thisForm.addEventListener("submit", async function (e) {
+            e.preventDefault(); // Prevent the default form submission
+            await submitData(); // Call the submitData function
+        });
+
+        async function submitData() {
+            console.log(  thisForm.password.value,'----pwd')
+            // Gather data into a JSON object
+            const formData = {
+                name: thisForm.name.value,
+                email: thisForm.email.value,
+                password: thisForm.password.value,
+                password_confirmation: thisForm.password_confirmation.value,
+            };
+
+            let response = await fetch("http://127.0.0.1:8000/api/user/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json" // Set the content type to JSON
+                },
+                body: JSON.stringify(formData), // Convert the object to a JSON string
+            });
+
+            // Check if the response is ok (status code 200-299)
+            if (!response.ok) {
+                const errorText = await response.text(); // Get the response as text
+                console.error("Error response:", errorText); // Log the error response
+                alert("An error occurred. Check the console for details.");
+                return;
+            }
+
+            let result = await response.json();
+            alert(result.message); // Display the message from the response
+            console.log(result); // Log the result for debugging
+            window.location.href='/login.html'
+        }
+    </script>
+</body>
+</html>
